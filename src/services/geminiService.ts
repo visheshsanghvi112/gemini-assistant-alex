@@ -1,16 +1,14 @@
 
 import { GeminiResponse } from '../types';
 
-// This would be replaced with your actual API key
-const API_KEY = 'YOUR_GEMINI_API_KEY';
+// Using the provided API key
+const API_KEY = 'AIzaSyARDiJ0B2jIGeTm9-L9ay0mPNu3PTO1G7A';
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 export const fetchGeminiResponse = async (message: string): Promise<GeminiResponse> => {
   try {
     console.log('Fetching response from Gemini API...');
     
-    // In a real implementation, this would be a call to the Gemini API
-    // This is a mock implementation for demonstration purposes
     const response = await fetch(`${API_URL}?key=${API_KEY}`, {
       method: 'POST',
       headers: {
