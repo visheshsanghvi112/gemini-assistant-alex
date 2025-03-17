@@ -4,6 +4,7 @@ import { useMediaQuery } from 'react-responsive';
 import Header from '@/components/Header';
 import AIAssistant from '@/components/AIAssistant';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const [showNotice, setShowNotice] = useState(true);
@@ -51,14 +52,14 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-alex-gray to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-alex-gray to-white dark:from-gray-900 dark:to-gray-800 dark:text-white transition-colors duration-300">
       {/* API Key Notice */}
       {showNotice && (
-        <div className="bg-amber-50 border-b border-amber-200 p-3 text-center">
-          <p className="text-amber-800 text-sm">
-            You need to add your Gemini API key in <code>src/services/geminiService.ts</code>
+        <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-700 p-3 text-center">
+          <p className="text-amber-800 dark:text-amber-200 text-sm">
+            You need to add your Gemini API key in <code className="bg-amber-100 dark:bg-amber-800/50 px-1.5 py-0.5 rounded">src/services/geminiService.ts</code>
             <button 
-              className="ml-3 text-amber-900 hover:text-amber-700 text-xs bg-amber-200 px-2 py-0.5 rounded-md"
+              className="ml-3 text-amber-900 dark:text-amber-100 hover:text-amber-700 dark:hover:text-amber-300 text-xs bg-amber-200 dark:bg-amber-800 px-2 py-0.5 rounded-md transition-colors"
               onClick={() => setShowNotice(false)}
             >
               Dismiss
@@ -69,10 +70,12 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <Header className="py-6" />
+        <Header className="py-6">
+          <ThemeToggle />
+        </Header>
         
         {/* Main container with glass effect */}
-        <div className="flex-1 glass rounded-2xl overflow-hidden shadow-strong mb-8 flex flex-col">
+        <div className="flex-1 glass dark:glass-dark rounded-2xl overflow-hidden shadow-strong dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] mb-8 flex flex-col">
           <AIAssistant />
         </div>
       </div>

@@ -12,6 +12,31 @@ import { fetchGeminiResponse } from '../services/geminiService';
 import { AssistantState, Message } from '../types';
 import { cn } from '@/lib/utils';
 
+// Add type declaration for SpeechRecognition
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
 const AIAssistant: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -44,29 +69,31 @@ const AIAssistant: React.FC = () => {
       
       // Add initial setup for speech recognition
       if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = true;
-        
-        recognitionRef.current.onresult = (event) => {
-          const transcript = Array.from(event.results)
-            .map(result => result[0].transcript)
-            .join('');
+        const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognitionConstructor) {
+          recognitionRef.current = new SpeechRecognitionConstructor();
+          recognitionRef.current.continuous = false;
+          recognitionRef.current.interimResults = true;
           
-          setInput(transcript);
-        };
-        
-        recognitionRef.current.onend = () => {
-          if (state === AssistantState.LISTENING) {
-            handleSendMessage();
-          }
-        };
+          recognitionRef.current.onresult = (event) => {
+            const transcript = Array.from(event.results)
+              .map(result => result[0].transcript)
+              .join('');
+            
+            setInput(transcript);
+          };
+          
+          recognitionRef.current.onend = () => {
+            if (state === AssistantState.LISTENING) {
+              handleSendMessage();
+            }
+          };
+        }
       } else {
         toast.error("Your browser doesn't support speech recognition");
       }
     }
-  }, [isInitialized]);
+  }, [isInitialized, state]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -227,7 +254,7 @@ const AIAssistant: React.FC = () => {
       />
       
       {/* Input area */}
-      <div className="p-4 border-t border-alex-gray/10 bg-white shadow-soft">
+      <div className="p-4 border-t border-alex-gray/10 dark:border-gray-700/20 bg-white dark:bg-gray-800 shadow-soft dark:shadow-[0_-4px_12px_rgba(0,0,0,0.1)] transition-colors duration-300">
         <div className="relative flex items-center">
           <input
             ref={inputRef}
@@ -237,8 +264,10 @@ const AIAssistant: React.FC = () => {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             className={cn(
-              "w-full py-3 px-4 pr-12 rounded-xl border border-alex-gray/20 focus:border-alex-blue focus:ring-1 focus:ring-alex-blue outline-none transition-all",
-              state === AssistantState.LISTENING && "bg-alex-gray/5 border-alex-blue"
+              "w-full py-3 px-4 pr-12 rounded-xl border dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:border-gray-600 focus:outline-none transition-all",
+              state === AssistantState.LISTENING 
+                ? "border-alex-blue dark:border-alex-light-blue ring-1 ring-alex-blue/50 dark:ring-alex-light-blue/50" 
+                : "border-alex-gray/20 dark:border-gray-600 focus:border-alex-blue dark:focus:border-alex-light-blue focus:ring-1 focus:ring-alex-blue/50 dark:focus:ring-alex-light-blue/50"
             )}
             disabled={state === AssistantState.PROCESSING}
           />
@@ -249,8 +278,8 @@ const AIAssistant: React.FC = () => {
             className={cn(
               "absolute right-3 text-white p-1.5 rounded-lg transition-all",
               input.trim() 
-                ? "bg-alex-blue hover:bg-alex-dark-blue"
-                : "bg-alex-dark-gray/30 cursor-not-allowed"
+                ? "bg-alex-blue hover:bg-alex-dark-blue dark:bg-alex-light-blue dark:hover:bg-alex-blue"
+                : "bg-alex-dark-gray/30 dark:bg-gray-600/50 cursor-not-allowed"
             )}
           >
             <SendHorizonal size={20} />
@@ -266,7 +295,7 @@ const AIAssistant: React.FC = () => {
         </div>
         
         <div className="flex justify-center mt-4">
-          <p className="text-xs text-alex-dark-gray">
+          <p className="text-xs text-alex-dark-gray dark:text-gray-400">
             {state === AssistantState.IDLE && "Tap the mic to speak"}
             {state === AssistantState.LISTENING && "Listening... tap again when done"}
             {state === AssistantState.PROCESSING && "Processing your request..."}

@@ -25,7 +25,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast = false }) =>
       ref={messageRef}
       className={cn(
         "flex items-start gap-4 py-4 px-4 mb-2 rounded-xl animate-fade-in",
-        isUser ? "bg-white shadow-soft" : "glass"
+        isUser 
+          ? "bg-white dark:bg-gray-800 shadow-soft dark:shadow-[0_4px_12px_rgba(0,0,0,0.1)]" 
+          : "glass dark:glass-dark"
       )}
       style={{ 
         animationDelay: '0.1s', 
@@ -34,7 +36,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast = false }) =>
     >
       <div className={cn(
         "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full",
-        isUser ? "bg-alex-gray text-alex-blue" : "bg-alex-blue text-white"
+        isUser 
+          ? "bg-alex-gray dark:bg-gray-700 text-alex-blue dark:text-alex-light-blue" 
+          : "bg-alex-blue dark:bg-alex-dark-blue text-white"
       )}>
         {isUser ? <UserRound size={20} /> : <Bot size={20} />}
       </div>
@@ -46,7 +50,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast = false }) =>
         <div className="text-sm leading-relaxed">
           {message.content}
         </div>
-        <div className="text-xs text-alex-dark-gray mt-2">
+        <div className="text-xs text-alex-dark-gray dark:text-gray-400 mt-2">
           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
