@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SendHorizonal, CircleOff } from 'lucide-react';
 import { toast } from "sonner";
@@ -12,7 +11,6 @@ import { fetchGeminiResponse } from '../services/geminiService';
 import { AssistantState, Message } from '../types';
 import { cn } from '@/lib/utils';
 
-// Add type declaration for SpeechRecognition
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -47,14 +45,12 @@ const AIAssistant: React.FC = () => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Function to scroll to the bottom of the chat
   const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, []);
 
-  // Initialize the assistant with a welcome message
   useEffect(() => {
     if (!isInitialized) {
       const welcomeMessage: Message = {
@@ -67,7 +63,6 @@ const AIAssistant: React.FC = () => {
       setMessages([welcomeMessage]);
       setIsInitialized(true);
       
-      // Add initial setup for speech recognition
       if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognitionConstructor) {
@@ -95,12 +90,10 @@ const AIAssistant: React.FC = () => {
     }
   }, [isInitialized, state]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Handle the microphone button click
   const handleMicrophoneClick = () => {
     if (state === AssistantState.IDLE) {
       startListening();
@@ -111,7 +104,6 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Start listening for speech
   const startListening = () => {
     if (recognitionRef.current) {
       try {
@@ -125,7 +117,6 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Stop listening for speech
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -137,7 +128,6 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Stop speaking
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
@@ -145,25 +135,28 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Speak the message
   const speakMessage = (text: string) => {
     if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
       window.speechSynthesis.cancel();
       
       speechSynthesisRef.current = new SpeechSynthesisUtterance(text);
       speechSynthesisRef.current.rate = 1.0;
-      speechSynthesisRef.current.pitch = 1.0;
+      speechSynthesisRef.current.pitch = 1.2;
       speechSynthesisRef.current.volume = 1.0;
       
-      // Get the appropriate voice (this could be a user preference)
       const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Google') || voice.name.includes('Daniel')
+      
+      const femaleVoice = voices.find(voice => 
+        voice.name.includes('Samantha') || 
+        voice.name.includes('Google UK English Female') || 
+        voice.name.includes('Microsoft Zira') ||
+        voice.name.includes('Female')
+      ) || voices.find(voice => 
+        voice.name.includes('Google') && !voice.name.includes('Male')
       );
       
-      if (preferredVoice) {
-        speechSynthesisRef.current.voice = preferredVoice;
+      if (femaleVoice) {
+        speechSynthesisRef.current.voice = femaleVoice;
       }
       
       speechSynthesisRef.current.onstart = () => {
@@ -180,11 +173,9 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Function to send a message
   const handleSendMessage = async () => {
     if (!input.trim() && state !== AssistantState.LISTENING) return;
     
-    // Create the user message
     const userMessage: Message = {
       id: uuidv4(),
       type: 'user',
@@ -192,16 +183,13 @@ const AIAssistant: React.FC = () => {
       timestamp: new Date(),
     };
     
-    // Update UI state
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setState(AssistantState.PROCESSING);
     
     try {
-      // Get response from Gemini API
       const response = await fetchGeminiResponse(userMessage.content);
       
-      // Create the assistant message
       const assistantMessage: Message = {
         id: uuidv4(),
         type: 'assistant',
@@ -209,10 +197,8 @@ const AIAssistant: React.FC = () => {
         timestamp: new Date(),
       };
       
-      // Update messages
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Speak the response
       speakMessage(response.text);
     } catch (error) {
       console.error("Error getting response:", error);
@@ -221,7 +207,6 @@ const AIAssistant: React.FC = () => {
     }
   };
 
-  // Handle Enter key in the input field
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -231,7 +216,6 @@ const AIAssistant: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col max-w-3xl mx-auto overflow-hidden">
-      {/* Main content area with messages */}
       <div 
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto px-4 pb-4 pt-2 space-y-4"
@@ -244,16 +228,16 @@ const AIAssistant: React.FC = () => {
           />
         ))}
         
-        {state === AssistantState.PROCESSING && <ThinkingIndicator />}
+        {state === AssistantState.PROCESSING && <ThinkingIndicator state={AssistantState.PROCESSING} />}
+        {state === AssistantState.LISTENING && <ThinkingIndicator state={AssistantState.LISTENING} text="Listening to you..." />}
+        {state === AssistantState.SPEAKING && <ThinkingIndicator state={AssistantState.SPEAKING} text="Alex is responding..." />}
       </div>
       
-      {/* Voice visualization */}
       <AnimatedWaves 
         isActive={state === AssistantState.LISTENING || state === AssistantState.SPEAKING} 
         audioLevel={state === AssistantState.LISTENING ? 0.8 : 0.5}
       />
       
-      {/* Input area */}
       <div className="p-4 border-t border-alex-gray/10 dark:border-gray-700/20 bg-white dark:bg-gray-800 shadow-soft dark:shadow-[0_-4px_12px_rgba(0,0,0,0.1)] transition-colors duration-300">
         <div className="relative flex items-center">
           <input
@@ -286,7 +270,6 @@ const AIAssistant: React.FC = () => {
           </button>
         </div>
         
-        {/* Voice button */}
         <div className="flex justify-center -mt-8">
           <VoiceButton 
             state={state} 

@@ -63,3 +63,23 @@ body {
   33% { content: '..'; }
   66% { content: '...'; }
 }
+
+/* New animation for voice indicator */
+@keyframes wave {
+  0% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.3); }
+}
+
+/* Pulse animation for speaking indicator */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Animation for voice bars */
+.voice-bar {
+  animation: wave 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
