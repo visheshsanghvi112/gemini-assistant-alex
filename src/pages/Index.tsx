@@ -52,7 +52,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-alex-gray to-white dark:from-gray-900 dark:to-gray-800 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-rose-50 dark:from-gray-900 dark:to-slate-900 dark:text-white transition-colors duration-300">
       {/* API Key Notice */}
       {showNotice && (
         <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-700 p-3 text-center">
@@ -75,7 +75,7 @@ const Index = () => {
         </Header>
         
         {/* Main container with glass effect */}
-        <div className="flex-1 glass dark:glass-dark rounded-2xl overflow-hidden shadow-strong dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] mb-8 flex flex-col">
+        <div className="flex-1 rounded-2xl overflow-hidden mb-8 flex flex-col bg-white/70 backdrop-blur-md shadow-lg dark:bg-gray-800/40 dark:backdrop-blur-md dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/50 dark:border-gray-700/30">
           <AIAssistant />
         </div>
       </div>

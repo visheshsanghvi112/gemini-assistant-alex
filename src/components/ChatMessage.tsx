@@ -24,10 +24,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast = false }) =>
     <div 
       ref={messageRef}
       className={cn(
-        "flex items-start gap-4 py-4 px-4 mb-2 rounded-xl animate-fade-in",
+        "group flex items-start gap-4 py-4 px-4 mb-3 rounded-xl animate-fade-in",
         isUser 
-          ? "bg-white dark:bg-gray-800 shadow-soft dark:shadow-[0_4px_12px_rgba(0,0,0,0.1)]" 
-          : "glass dark:glass-dark"
+          ? "bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20" 
+          : "bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm border border-white/20 dark:border-gray-700/20"
       )}
       style={{ 
         animationDelay: '0.1s', 
@@ -37,21 +37,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLast = false }) =>
       <div className={cn(
         "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full",
         isUser 
-          ? "bg-alex-gray dark:bg-gray-700 text-alex-blue dark:text-alex-light-blue" 
-          : "bg-alex-blue dark:bg-alex-dark-blue text-white"
+          ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white" 
+          : "bg-gradient-to-br from-sky-400 to-indigo-500 text-white"
       )}>
         {isUser ? <UserRound size={20} /> : <Bot size={20} />}
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold mb-1">
+        <div className="text-sm font-semibold mb-1.5 flex items-center gap-2">
           {isUser ? 'You' : 'Alex'}
+          <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
         </div>
-        <div className="text-sm leading-relaxed">
+        <div className={cn(
+          "text-sm leading-relaxed rounded-xl p-3 mb-1 shadow-sm",
+          isUser 
+            ? "chat-bubble user" 
+            : "chat-bubble assistant"
+        )}>
           {message.content}
-        </div>
-        <div className="text-xs text-alex-dark-gray dark:text-gray-400 mt-2">
-          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
     </div>
